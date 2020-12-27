@@ -1,5 +1,6 @@
 import './App.css';
 import React from 'react';
+import axios from 'axios';
 
 const DATASAMPLE=[
   {name: "Dan Abramov", avatar: "https://avatars0.githubusercontent.com/u/810438?v=4", company: "@facebook"},
@@ -15,21 +16,30 @@ const Header= (props)=>{
   )
 }
 
-const Content=()=>{
+class Content extends React.Component{
+  state={ profiles: DATASAMPLE}
+  addNewProfile=(profileData)=>{
+    this.setState((prevState)=>({
+      profiles: [prevState,profiles,profileData]
+    }))
+  }
+  render(){
   return(
     <div className="Content">
-    <Form/>
-    <CardList data={DATASAMPLE} />
+    <Form onSubmit={this.addNewProfile}/>
+    <CardList data={this.state.profiles} />
     </div>
   )
+  }
 }
 
 
 class Form extends React.Component{
   state={ userInput: ''}
-  handleSubmit = (event)=>{
+  handleSubmit = async (event)=>{
     event.preventDefault();
-    console.log(this.state.userInput)
+    const res= await axios.get(`https://api.github.com/users/${this.state.userInput}`)
+    this.props.onSubmit(res.data)
   }
   
   render(){
@@ -72,9 +82,10 @@ const Card=(props)=>{
 const CardList= (props)=>{
   return(
     <>
-    {props.data.map((profile)=> <Card {...profile}/>)}
+    {props.data.map((profile)=> <Card key={profile.id} {...profile}/>)} 
     </>
   )
+  //if you don't add a key property, it will throw an error about each child needing an unique key in a list
 }
 
 const App= (props)=> {
