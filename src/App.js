@@ -24,18 +24,30 @@ const Content=()=>{
   )
 }
 
+
 class Form extends React.Component{
-   userInput= React.createRef();
-   handleSubmit = (event)=>{
+  state={ userInput: ''}
+  handleSubmit = (event)=>{
     event.preventDefault();
-    console.log(this.userInput.current.value)
+    console.log(this.state.userInput)
   }
+  
   render(){
     return(
       <div className="center">
         <form onSubmit={this.handleSubmit}>
-          <input type="text" placeholder="write something" ref={this.userInput} required/>
+          <input type="text"
+          placeholder="write something"
+          value={this.state.userInput}
+          onChange={event=>{
+            this.setState({
+              userInput: event.target.value
+            })
+          }} 
+          required/>
           <button>Click me</button>
+          <br/>
+          
         </form>
       </div>
     )
