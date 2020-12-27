@@ -3,9 +3,9 @@ import React from 'react';
 import axios from 'axios';
 
 const DATASAMPLE=[
-  {name: "Dan Abramov", avatar: "https://avatars0.githubusercontent.com/u/810438?v=4", company: "@facebook"},
-  {name: "Sophie Alpert", avatar: "https://avatars2.githubusercontent.com/u/6820?v=4", company: "Humu"},
-  {name: "Sebastian Markbåge", avatar: "https://avatars2.githubusercontent.com/u/63648?v=4", company: "Facebook"},
+  {id:1 ,name: "Dan Abramov", avatar_url: "https://avatars0.githubusercontent.com/u/810438?v=4", company: "@facebook"},
+  {id:2 ,name: "Sophie Alpert", avatar_url: "https://avatars2.githubusercontent.com/u/6820?v=4", company: "Humu"},
+  {id:3 ,name: "Sebastian Markbåge", avatar_url: "https://avatars2.githubusercontent.com/u/63648?v=4", company: "Facebook"},
 ]
 
 const Header= (props)=>{
@@ -18,10 +18,12 @@ const Header= (props)=>{
 
 class Content extends React.Component{
   state={ profiles: DATASAMPLE}
+
   addNewProfile=(profileData)=>{
-    this.setState((prevState)=>({
-      profiles: [prevState,profiles,profileData]
+    this.setState(prevState=>({
+      profiles: [...prevState.profiles, profileData]
     }))
+
   }
   render(){
   return(
@@ -35,11 +37,12 @@ class Content extends React.Component{
 
 
 class Form extends React.Component{
-  state={ userInput: ''}
+  state={ userInput: ""}
   handleSubmit = async (event)=>{
     event.preventDefault();
     const res= await axios.get(`https://api.github.com/users/${this.state.userInput}`)
     this.props.onSubmit(res.data)
+    this.setState({userInput:""})
   }
   
   render(){
@@ -70,7 +73,7 @@ const Card=(props)=>{
   return(
   <div className="profile">
     
-    <img src={profile.avatar}/>
+    <img src={profile.avatar_url} alt=""/>
     <div className="profile-right">
       <div className="name">{profile.name}</div>
       <div className="company">{profile.company}</div>
@@ -80,6 +83,7 @@ const Card=(props)=>{
 }
 
 const CardList= (props)=>{
+
   return(
     <>
     {props.data.map((profile)=> <Card key={profile.id} {...profile}/>)} 
