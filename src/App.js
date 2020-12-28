@@ -17,13 +17,20 @@ const Header= (props)=>{
 }
 
 class Content extends React.Component{
-  state={ profiles: DATASAMPLE}
+  render(){
+    return(
+      <ProfileCardsDemo/>
+    )
+  }
+}
 
+class ProfileCardsDemo extends React.Component{
+  state={ profiles: DATASAMPLE}
   addNewProfile=(profileData)=>{
     this.setState(prevState=>({
       profiles: [...prevState.profiles, profileData]
-    }))
-
+      })
+    )
   }
   render(){
   return(
@@ -35,12 +42,11 @@ class Content extends React.Component{
   }
 }
 
-
 class Form extends React.Component{
   state={ userInput: ""}
   handleSubmit = async (event)=>{
     event.preventDefault();
-    const res= await axios.get(`https://api.github.com/users/${this.state.userInput}`)
+    const res= await getDataService(this.state)
     this.props.onSubmit(res.data)
     this.setState({userInput:""})
   }
@@ -49,8 +55,7 @@ class Form extends React.Component{
     return(
       <div className="center">
         <form onSubmit={this.handleSubmit}>
-          <input type="text"
-          placeholder="write something"
+          <input placeholder="write something"
           value={this.state.userInput}
           onChange={event=>{
             this.setState({
@@ -60,19 +65,39 @@ class Form extends React.Component{
           required/>
           <button>Click me</button>
           <br/>
-          
+          {/*insert an indicator which indicates if the user exists before clicking the button DB*/}
         </form>
       </div>
     )
   }
 }
 
-const Card=(props)=>{
+const getDataService=(state)=>{
+  try{
+  return axios.get(`https://api.github.com/users/${state.userInput}`)
+  }catch(e){
+    console.error(`error in getDataService: ${e}`)
+    try{
+      fetch(`https://api.github.com/users/${state.userInput}`)
+      .then(response => response.json())
+      .then(data => {return data});
+    }catch(e){console.error(e)}
+  }
+}
 
+const CardList= (props)=>{
+  return(
+    <>
+    {props.data.map((profile)=> <Card key={profile.id} {...profile}/>)} 
+    </>
+  )
+  //if you don't add a key property, it will throw an error about each child needing an unique key in a list
+}
+
+const Card=(props)=>{
   let profile=props;
   return(
   <div className="profile">
-    
     <img src={profile.avatar_url} alt=""/>
     <div className="profile-right">
       <div className="name">{profile.name}</div>
@@ -82,15 +107,7 @@ const Card=(props)=>{
   )
 }
 
-const CardList= (props)=>{
 
-  return(
-    <>
-    {props.data.map((profile)=> <Card key={profile.id} {...profile}/>)} 
-    </>
-  )
-  //if you don't add a key property, it will throw an error about each child needing an unique key in a list
-}
 
 const App= (props)=> {
   return (
